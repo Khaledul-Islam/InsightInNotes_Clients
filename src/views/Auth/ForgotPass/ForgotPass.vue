@@ -21,34 +21,12 @@
 
           <!-- title -->
           <v-card-text>
-            <p class="text-2xl font-weight-semibold text--primary mb-2">Journey starts here 🚀</p>
+            <p class="text-2xl font-weight-semibold text--primary mb-2">Recover Your Password</p>
           </v-card-text>
 
           <!-- login form -->
           <v-card-text>
             <v-form>
-              <ValidationProvider name="First Name" :rules="{ required: true, max: 30 }">
-                <v-text-field
-                  v-model="userObj.firstName"
-                  label="First Name"
-                  hint="Max Length 30 Character"
-                  slot-scope="{ errors, valid }"
-                  :error-messages="errors"
-                  :success="valid"
-                ></v-text-field>
-              </ValidationProvider>
-              <ValidationProvider name="Last Name" :rules="{ max: 30, required: true }">
-                <v-text-field
-                  v-model="userObj.lastName"
-                  slot-scope="{ errors, valid }"
-                  :error-messages="errors"
-                  :success="valid"
-                  hint="Max Length 30 Character"
-                  label="Last Name"
-                >
-                </v-text-field>
-              </ValidationProvider>
-
               <ValidationProvider name="Email" rules="required|email">
                 <v-text-field
                   v-model="userObj.email"
@@ -58,21 +36,29 @@
                   :success="valid"
                 ></v-text-field>
               </ValidationProvider>
-              <DatePickerWithText v-model="userObj.dob" dateLabel="Date of Birth" :requiredRules="false" />
               <ValidationProvider name="Password" :rules="{ required: true, min: 8 }">
                 <v-text-field
-                  v-model="userObj.password"
+                  v-model="userObj.newPassword"
                   :type="isPasswordVisible ? 'text' : 'password'"
                   :append-icon="isPasswordVisible ? icons.mdiEyeOffOutline : icons.mdiEyeOutline"
                   @click:append="isPasswordVisible = !isPasswordVisible"
-                  label="Password"
+                  label="New Password"
                   slot-scope="{ errors, valid }"
+                  placeholder="Enter New Password"
                   :error-messages="errors"
                   :success="valid"
                 ></v-text-field>
               </ValidationProvider>
-              <v-btn block @click="SignUpButtonClick()" :loading="loading" color="primary" class="mt-6">
-                Sign Up
+              <v-text-field
+                v-model="userObj.otp"
+                label="Otp"
+                hint="Enter six digit otp code"
+                v-if="flag == true"
+                placeholder="Enter Six digit OTP Code"
+              ></v-text-field>
+              <span>{{ otpMsg }}</span>
+              <v-btn block @click="ForgotButtonClick()" color="primary" class="mt-6">
+                {{ buttontxt }}
               </v-btn>
             </v-form>
           </v-card-text>
@@ -103,96 +89,91 @@
 
 <script>
 // eslint-disable-next-line object-curly-newline
-import { ref } from '@vue/composition-api'
 import Axios from 'axios'
-import { commonConfig, postConfig } from '../../../../public/ApiLib.js'
+import { postConfig } from '../../../../public/ApiLib.js'
 import { RepositoryAPI } from '../../../../public/config.js'
 import { mdiEyeOutline, mdiEyeOffOutline } from '@mdi/js'
 
-var RegisterAPIBodyData = {
-  path: '/Account/Register',
+var ForgotPassAPIBodyData = {
+  path: '/Account/ForgetPassword',
   method: 'POST',
   data: {
-    firstName: '',
-    lastName: '',
     email: '',
-    dateOfBirth: '',
-    password: '',
+    newPassword: '',
+    otp: '',
   },
 }
 
-var isExistBodyData = {
-  path: '/Account/IsExist?email=',
-  method: 'GET',
-  data: {},
-}
 export default {
   data() {
     return {
-      isPasswordVisible: null,
-      loading: false,
+      isPasswordVisible: false,
       userObj: {
-        firstName: null,
-        lastName: null,
         email: null,
-        dob: null,
-        password: null,
+        otp: null,
+        newPassword: null,
       },
       icons: {
         mdiEyeOutline,
         mdiEyeOffOutline,
       },
       socialLink: null,
-      RegisterAPIBody: RegisterAPIBodyData,
-      isExistBody: isExistBodyData,
+      otpMsg: null,
+      buttontxt: 'Verify',
+      flag: false,
+      ForgotPassAPIBody: ForgotPassAPIBodyData,
     }
   },
   methods: {
-    isExist() {
-      this.isExistBody.path = this.isExistBody.path + this.userObj.email
-      let config = commonConfig(this.isExistBody, RepositoryAPI)
-      Axios(config)
-        .then(response => {})
-        .catch(error => {
-          this.userObj.email = ''
-          this.$root.snackbar.seterrortext(error.response.data)
-        })
-    },
-    formatDate(date) {
-      if (!date) return null
-      const [month, day, year] = date.split('/')
-      return `${year}-${month}-${day}`
-    },
-    RegisterAPI() {
-      this.loading = true
-      let config = postConfig(this.RegisterAPIBody, RepositoryAPI)
-      this.RegisterAPIBody.data.firstName = this.userObj.firstName
-      this.RegisterAPIBody.data.lastName = this.userObj.lastName
-      this.RegisterAPIBody.data.email = this.userObj.email
-      this.RegisterAPIBody.data.dateOfBirth = this.formatDate(this.userObj.dob)
-      this.RegisterAPIBody.data.password = this.userObj.password
-      Axios.post(config, this.RegisterAPIBody.data)
+    ForgotPassAPIwithOTP() {
+      let config = postConfig(this.ForgotPassAPIBody, RepositoryAPI)
+      this.ForgotPassAPIBody.data.email = this.userObj.email
+      this.ForgotPassAPIBody.data.newPassword = this.userObj.newPassword
+      this.ForgotPassAPIBody.data.otp = this.userObj.otp
+      Axios.post(config, this.ForgotPassAPIBody.data)
         .then(response => {
-          this.userObj = {}
-          this.loading = false
-          this.$root.snackbar.setsuccesstext('Account created successfully.Please sign in')
+          this.$root.snackbar.setsuccesstext("Password Changed Succeffully")
           this.$router.push({ name: 'login' })
-          this.userObj = {}
         })
         .catch(e => {
-          this.loading = false
           this.$root.snackbar.seterrortext(e.response.data)
-        })
-        .finally(() => {
-          this.loading = false
+          this.flag = false
+          this.buttontxt = 'Verify'
         })
     },
-    async SignUpButtonClick() {
-      let isValid = await this.$refs['form_observer'].validate()
-      if (!isValid) {
-        this.$root.snackbar.seterrortext('Please Fill The Required Field')
-      } else {
-        await this.RegisterAPI()
+    ForgotPassAPI() {
+      let config = postConfig(this.ForgotPassAPIBody, RepositoryAPI)
+      this.ForgotPassAPIBody.data.email = this.userObj.email
+      this.ForgotPassAPIBody.data.newPassword = this.userObj.newPassword
+      this.ForgotPassAPIBody.data.otp = this.userObj.otp
+      Axios.post(config, this.ForgotPassAPIBody.data)
+        .then(response => {
+          this.$root.snackbar.setsuccesstext(response.data.otp)
+          this.otpMsg = response.data.otp
+          this.buttontxt = 'Recover'
+          this.flag = true
+          //this.$router.push({ name: 'login' })
+        })
+        .catch(e => {
+          this.$root.snackbar.seterrortext(e.response.data)
+          this.flag = false
+          this.buttontxt = 'Verify'
+        })
+    },
+    async ForgotButtonClick() {
+      console.log(this.userObj.otp)
+      if (this.userObj.otp == null || this.userObj.otp == undefined || this.userObj.otp == '') {
+        let isValid = await this.$refs['form_observer'].validate()
+        console.log(isValid)
+        if (!isValid) {
+          this.$root.snackbar.seterrortext('Please Fill The Required Field')
+        } else {
+          this.ForgotPassAPI()
+        }
+        return
+      }
+      if (this.userObj.otp != null) {
+        this.ForgotPassAPIwithOTP()
       }
     },
   },

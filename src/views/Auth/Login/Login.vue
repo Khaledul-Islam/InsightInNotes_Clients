@@ -44,7 +44,9 @@
               <!-- <v-checkbox label="Remember Me" hide-details class="me-3 mt-1"> </v-checkbox> -->
 
               <!-- forgot link -->
-              <!-- <a href="javascript:void(0)" class="mt-1"> Forgot Password? </a> -->
+              <a href="javascript:void(0)" class="mt-1">
+                <router-link :to="{ name: 'forgotpass' }"> Forgot Password ?? </router-link>
+              </a>
             </div>
             <v-btn @click="login()" :loading="loading" block color="primary" class="mt-6">
               <span class="spinner-border spinner-border-sm"></span> <span>Login</span>
@@ -54,12 +56,8 @@
 
         <!-- //create new account  -->
         <v-card-text class="d-flex align-center justify-center flex-wrap mt-2">
-          <span class="me-2">
-            New on our platform?
-          </span>
-          <router-link :to="{ name: 'register' }">
-            Create an account
-          </router-link>
+          <span class="me-2"> New on our platform? </span>
+          <router-link :to="{ name: 'register' }"> Create an account </router-link>
         </v-card-text>
 
         <!-- //social link -->

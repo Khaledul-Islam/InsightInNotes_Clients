@@ -3,32 +3,42 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 import UserLogin from '@/views/Auth/Login/Login.vue'
 import Register from '@/views/Auth/Register/Register.vue'
+import ForgotPass from '@/views/Auth/ForgotPass/ForgotPass.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
-    path: "/login",
+    path: '/login',
     redirect: {
-      name: "login",
+      name: 'login',
     },
   },
   {
-    path: "/login",
-    name: "login",
+    path: '/login',
+    name: 'login',
     component: UserLogin,
     meta: {
       requiresVisitor: true,
-      layout: 'blank'
+      layout: 'blank',
     },
   },
   {
-    path: "/register",
-    name: "register",
+    path: '/register',
+    name: 'register',
     component: Register,
     meta: {
       requiresVisitor: true,
-      layout: 'blank'
+      layout: 'blank',
+    },
+  },
+  {
+    path: '/forgotpass',
+    name: 'forgotpass',
+    component: ForgotPass,
+    meta: {
+      requiresVisitor: true,
+      layout: 'blank',
     },
   },
 
@@ -78,16 +88,16 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const publicPages = ['/login', '/register', '/home'];
-  const authRequired = !publicPages.includes(to.path);
-  const loggedIn = sessionStorage.getItem('user');
+  const publicPages = ['/login', '/register','/forgotpass', '/home']
+  const authRequired = !publicPages.includes(to.path)
+  const loggedIn = sessionStorage.getItem('user')
 
   // trying to access a restricted page + not logged in
   // redirect to login page
   if (authRequired && !loggedIn) {
-    next('/login');
+    next('/login')
   } else {
-    next();
+    next()
   }
-});
+})
 export default router
