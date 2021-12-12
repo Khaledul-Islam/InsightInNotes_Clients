@@ -25,7 +25,7 @@
         :key="item.noteID"
         :class="`d-flex align-start ${index > 0 ? 'mt-8' : ''}`"
       >
-        <v-icon dark left> mdi-file </v-icon>
+        <v-icon left> mdi-file </v-icon>
         <div class="d-flex align-center flex-grow-1 flex-wrap">
           <div>
             <h4 class="font-weight-medium">
