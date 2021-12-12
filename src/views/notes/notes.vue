@@ -36,8 +36,11 @@
           <template v-slot:[`item.dueDate`]="{ item }">
             <span>{{ convertFromMMDDYYYYwithTimeToDDMMYYYY(item.dueDate) }}</span>
           </template>
+          <template v-slot:[`item.isCompleted`]="{ item }">
+            <v-switch @click="isCompleted(item)" v-model="item.isCompleted" inset></v-switch>
+          </template>
 
-          <template v-slot:[`item.Edit`]="{ item }">
+          <template v-slot:[`item.View`]="{ item }">
             <v-btn class="mx-2" x-small color="success" dark fab @click="rowClickView(item)">
               <v-icon>mdi-eye</v-icon></v-btn
             >
@@ -69,6 +72,13 @@ var notesListAPIBodyData = {
   path: '/Notes/GetNotes',
   method: 'GET',
   data: {},
+}
+var UpdateNoteAPIBodyData = {
+  path: '/Notes/UpdateNote',
+  method: 'POST',
+  data: {
+    isCompleted: '',
+  },
 }
 
 var headersData = [
@@ -107,7 +117,7 @@ var headersData = [
   // },
   {
     text: '',
-    value: 'Edit',
+    value: 'View',
   },
   {
     text: '',
@@ -127,6 +137,7 @@ export default {
       ApiResponse: [],
       headers: headersData,
       notesListAPIBody: notesListAPIBodyData,
+      UpdateNoteAPIBody: UpdateNoteAPIBodyData,
       UserName: null,
       UserEmail: null,
     }
@@ -136,6 +147,17 @@ export default {
     ViewModal,
   },
   methods: {
+    isCompleted(item) {
+      let config = postConfig(this.UpdateNoteAPIBody, RepositoryAPI)
+      this.UpdateNoteAPIBody.data = item
+      Axios.post(config, this.UpdateNoteAPIBody.data)
+        .then(response => {
+          this.$root.snackbar.setsuccesstext('Task Updated')
+        })
+        .catch(error => {
+          this.$root.snackbar.seterrortext(error)
+        })
+    },
     formatDate(date) {
       if (!date) return null
       const [month, day, year] = date.split('/')

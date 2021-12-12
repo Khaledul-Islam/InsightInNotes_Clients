@@ -57,7 +57,6 @@
                 <v-text-field
                   v-model="userObj.email"
                   label="Email"
-                  @change="isExist()"
                   slot-scope="{ errors, valid }"
                   :error-messages="errors"
                   :success="valid"
