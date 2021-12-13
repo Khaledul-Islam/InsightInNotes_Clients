@@ -17,6 +17,8 @@ class AuthService {
       .post(requestPath, this.LoginBody.data);
     if (response.data.token) {
       sessionStorage.setItem('user', JSON.stringify(response.data));
+      sessionStorage.setItem('access_token', JSON.stringify(response.data.token));
+      //axios.defaults.headers.common['Authorization']=response.data.token
     }
     return response.data;
   }

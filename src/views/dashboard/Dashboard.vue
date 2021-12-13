@@ -37,5 +37,8 @@ export default {
   setup() {
     return {}
   },
+  created(){
+    
+  }
 }
 </script>
